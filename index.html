@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo de Banca en Línea Multimonedas (VES/USD/EUR) Basado en Estructuras Algorítmicas</title>
+    <style>
+        :root {
+            --primary: #0f294a;
+            --primary-light: #1e467a;
+            --accent: #00a878;
+            --bg: #f3f6f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #dc2626;
+            --warning: #d97706;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Barra Lateral */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 32px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand span {
+            background: var(--accent);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            text-align: left;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background-color: var(--primary-light);
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Contenido Principal */
+        .main-content {
+            flex: 1;
+            padding: 28px 36px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+        }
+
+        .user-info h1 {
+            font-size: 1.35rem;
+            color: var(--primary);
+            line-height: 1.25;
+        }
+
+        .user-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* Widget Tasa del Día */
+        .rate-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(15, 41, 74, 0.15);
+            flex-shrink: 0;
+        }
+
+        .rate-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rate-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            opacity: 0.85;
+            letter-spacing: 0.5px;
+        }
+
+        .rate-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        .btn-edit-rate {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .btn-edit-rate:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Tarjetas de Resumen */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+
+        .card-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .balance-sub {
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Secciones dinámicas */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Formularios y Planificador */
+        .form-container {
+            max-width: 520px;
+            background: var(--card-bg);
+            padding: 28px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .planner-layout {
+            display: grid;
+            grid-template-columns: minmax(300px, 420px) 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-light);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 13px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn-delete {
+            background-color: #fee2e2;
+            color: var(--danger);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background-color: #fecaca;
+        }
+
+        .planner-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 12px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .status-ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-warn {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-deficit {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Tabla de Movimientos y Gastos */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.92rem;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .amount-pos { color: var(--accent); font-weight: 600; }
+        .amount-neg { color: var(--danger); font-weight: 600; }
+
+        /* Alertas */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .alert.success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; display: block; }
+        .alert.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; display: block; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .planner-layout { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 12px; }
+            .brand { display: none; }
+            .nav-btn { margin-bottom: 0; white-space: nowrap; }
+            header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menú Lateral -->
+    <aside class="sidebar">
+        <div class="brand"><span>BND</span> Banco Digital</div>
+        <button class="nav-btn active" onclick="mostrarSeccion('resumen', this)">📊 Resumen General</button>
+        <button class="nav-btn" onclick="mostrarSeccion('transferencias', this)">💸 Transferencias</button>
+        <button class="nav-btn" onclick="mostrarSeccion('pagomovil', this)">📱 Pago Móvil</button>
+        <button class="nav-btn" onclick="mostrarSeccion('gastos', this)">🧾 Planificador Gastos</button>
+        <button class="nav-btn" onclick="mostrarSeccion('calculadora', this)">💱 Calculadora Divisas</button>
+        <button class="nav-btn" onclick="mostrarSeccion('deposito', this)">➕ Recargar Saldo</button>
+    </aside>
+
+    <!-- Área Principal -->
+    <main class="main-content">
+        <header>
+            <div class="user-info">
+                <h1>Prototipo de Banca en Línea Multimonedas (VES/USD/EUR) Basado en Estructuras Algorítmicas</h1>
+                <p>Bienvenido, Usuario · Cuenta Corriente N° 0102-0458-99-0012345678</p>
+            </div>
+
+            <!-- Indicador de Tasa del Día -->
+            <div class="rate-banner">
+                <div class="rate-item">
+                    <span class="rate-label">Tasa BCV (USD)</span>
+                    <span class="rate-value" id="display-tasa-usd">Bs. 918,77</span>
+                </div>
+                <div class="rate-item">
+                    <span class="rate-label">Tasa BCV (EUR)</span>
+                    <span class="rate-value" id="display-tasa-eur">Bs. 1.009,07</span>
+                </div>
+                <button class="btn-edit-rate" onclick="actualizarTasa()">Actualizar Tasa</button>
+            </div>
+        </header>
+
+        <!-- Alerta de notificaciones -->
+        <div id="alerta-global" class="alert"></div>
+
+        <!-- SECCIÓN 1: RESUMEN GENERAL -->
+        <section id="resumen" class="section active">
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-title">Saldo Disponible (Bolívares)</div>
+                    <div class="balance-amount" id="saldo-bs">Bs. 45.938,50</div>
+                    <div class="balance-sub" id="saldo-usd-eq">Equivalente: $ 50,00 USD</div>
+                    <div class="balance-sub" id="saldo-eur-eq" style="color: var(--text-muted);">Equivalente: € 45,53 EUR</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Estado de Cuenta</div>
+                    <div class="balance-amount" style="font-size: 1.5rem; color: var(--accent);">Activa</div>
+                    <div class="balance-sub" style="color: var(--text-muted);">Límite diario: Bs. 150.000,00</div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 14px; color: var(--primary);">Últimos Movimientos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Referencia</th>
+                        <th>Monto (Bs.)</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-movimientos">
+                    <tr>
+                        <td>24/11/2026</td>
+                        <td>Abono Nómina / Depósito Inicial</td>
+                        <td>#0049182</td>
+                        <td class="amount-pos">+ Bs. 50.000,00</td>
+                    </tr>
+                    <tr>
+                        <td>24/11/2026</td>
+                        <td>Pago Móvil Enviado - 0414***8821</td>
+                        <td>#0049195</td>
+                        <td class="amount-neg">- Bs. 4.061,50</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SECCIÓN 2: TRANSFERENCIAS -->
+        <section id="transferencias" class="section">
+            <div class="form-container">
+                <h2 style="margin-bottom: 18px; color: var(--primary);">Transferencia Bancaria</h2>
+                <form onsubmit="procesarOperacion(event, 'Transferencia')">
+                    <div class="form-group">
+                        <label>Banco Destino</label>
+                        <select id="trans-banco" required>
+                            <option value="Banco de Venezuela">Banco de Venezuela (0102)</option>
+                            <option value="Banesco">Banesco (0134)</option>
+                            <option value="Mercantil">Banco Mercantil (0105)</option>
+                            <option value="Provincial">BBVA Provincial (0108)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Número de Cuenta (20 dígitos)</label>
+                        <input type="text" id="trans-cuenta" maxlength="20" minlength="20" placeholder="01020000000000000000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula o RIF del Beneficiario</label>
+                        <input type="text" id="trans-doc" placeholder="V-12345678" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Monto a transferir (Bs.)</label>
+                        <input type="number" id="trans-monto" step="0.01" min="1" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Concepto</label>
+                        <input type="text" id="trans-concepto" placeholder="Ej. Pago de servicios" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Realizar Transferencia</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: PAGO MÓVIL -->
+        <section id="pagomovil" class="section">
+            <div class="form-container">
+                <h2 style="margin-bottom: 18px; color: var(--primary);">Pago Móvil Interbancario</h2>
+                <form onsubmit="procesarOperacion(event, 'Pago Móvil')">
+                    <div class="form-group">
+                        <label>Banco Destino</label>
+                        <select id="pm-banco" required>
+                            <option value="Banco de Venezuela">Banco de Venezuela</option>
+                            <option value="Banesco">Banesco</option>
+                            <option value="Mercantil">Mercantil</option>
+                            <option value="BNC">Banco Nacional de Crédito (BNC)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono Celular</label>
+                        <input type="tel" id="pm-telefono" placeholder="04141234567" maxlength="11" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cédula de Identidad</label>
+                        <input type="text" id="pm-cedula" placeholder="V-25123456" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Monto (Bs.)</label>
+                        <input type="number" id="pm-monto" step="0.01" min="1" placeholder="0.00" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Enviar Pago Móvil</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: PLANIFICADOR DE GASTOS -->
+        <section id="gastos" class="section">
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-title">Total Gastos Agregados</div>
+                    <div class="balance-amount" id="total-gastos-bs" style="color: var(--danger);">Bs. 0,00</div>
+                    <div class="balance-sub" id="total-gastos-usd" style="color: var(--text-muted);">$ 0,00 USD · € 0,00 EUR</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Saldo Estimado Tras Gastos</div>
+                    <div class="balance-amount" id="saldo-restante-bs">Bs. 45.938,50</div>
+                    <div class="balance-sub" id="saldo-restante-usd">Equivalente: $ 50,00 USD</div>
+                    <span id="estado-presupuesto" class="status-badge status-ok">Saldo cubierto</span>
+                </div>
+            </div>
+
+            <div class="planner-layout">
+                <div class="form-container">
+                    <h2 style="margin-bottom: 10px; color: var(--primary);">Simular Gastos Pendientes</h2>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 18px;">
+                        Agrega los gastos que planeas hacer para saber con cuánto quedarías. Esto no descuenta dinero real de tu cuenta.
+                    </p>
+                    <form onsubmit="agregarGastoPlanificado(event)">
+                        <div class="form-group">
+                            <label>Concepto del gasto</label>
+                            <input type="text" id="gasto-concepto" placeholder="Ej. Mercado, transporte, internet" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Monto del gasto (Bs.)</label>
+                            <input type="number" id="gasto-monto" step="0.01" min="0.01" placeholder="0.00" required>
+                        </div>
+                        <button type="submit" class="btn-submit">Agregar Gasto a la Simulación</button>
+                    </form>
+                </div>
+
+                <div>
+                    <div class="planner-header-actions">
+                        <h3 style="color: var(--primary);">Detalle de Gastos Proyectados</h3>
+                        <button type="button" class="btn-secondary" onclick="limpiarGastos()">Limpiar lista</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Monto (Bs.)</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-gastos">
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: var(--text-muted);">
+                                    Aún no has agregado gastos para simular.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 5: CALCULADORA DE DIVISAS -->
+        <section id="calculadora" class="section">
+            <div class="form-container">
+                <h2 style="margin-bottom: 10px; color: var(--primary);">Conversor de Moneda</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Calcula el equivalente según la tasa oficial vigente.</p>
+                
+                <div class="form-group">
+                    <label>Monto en Dólares (USD)</label>
+                    <input type="number" id="calc-usd" step="0.01" placeholder="1.00" oninput="convertirMoneda('USD')">
+                </div>
+                <div class="form-group">
+                    <label>Equivalente en Bolívares (VES)</label>
+                    <input type="number" id="calc-ves" step="0.01" placeholder="918.77" oninput="convertirMoneda('VES')">
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 6: RECARGAR SALDO (PARA PRUEBAS) -->
+        <section id="deposito" class="section">
+            <div class="form-container">
+                <h2 style="margin-bottom: 18px; color: var(--primary);">Recargar Saldo (Simulador)</h2>
+                <form onsubmit="recargarSaldo(event)">
+                    <div class="form-group">
+                        <label>Monto a depositar en cuenta (Bs.)</label>
+                        <input type="number" id="dep-monto" step="0.01" min="1" placeholder="5000.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción del ingreso</label>
+                        <input type="text" id="dep-desc" value="Depósito en efectivo / Taquilla" required>
+                    </div>
+                    <button type="submit" class="btn-submit" style="background-color: var(--accent);">Abonar Fondos</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Estado inicial de la cuenta y simulación de gastos
+        let saldoActual = 45938.50;
+        let tasaUSD = 918.77;
+        let tasaEUR = 1009.07;
+        let gastosPlanificados = [];
+
+        // Formateadores de moneda
+        function formatoBs(valor) {
+            return 'Bs. ' + valor.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatoDivisa(simbolo, codigo, valor) {
+            return `${simbolo} ${valor.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${codigo}`;
+        }
+
+        // Actualizar interfaz de saldos, tasas y simulación de gastos
+        function actualizarVista() {
+            document.getElementById('saldo-bs').innerText = formatoBs(saldoActual);
+            document.getElementById('saldo-usd-eq').innerText = `Equivalente: ${formatoDivisa('$', 'USD', saldoActual / tasaUSD)}`;
+            document.getElementById('saldo-eur-eq').innerText = `Equivalente: ${formatoDivisa('€', 'EUR', saldoActual / tasaEUR)}`;
+            
+            document.getElementById('display-tasa-usd').innerText = formatoBs(tasaUSD);
+            document.getElementById('display-tasa-eur').innerText = formatoBs(tasaEUR);
+
+            actualizarSimuladorGastos();
+        }
+
+        // Navegación entre pestañas
+        function mostrarSeccion(idSeccion, boton) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(idSeccion).classList.add('active');
+            boton.classList.add('active');
+            ocultarAlerta();
+        }
+
+        // Mostrar alertas
+        function mostrarAlerta(mensaje, tipo) {
+            const alerta = document.getElementById('alerta-global');
+            alerta.innerText = mensaje;
+            alerta.className = 'alert ' + tipo;
+            setTimeout(ocultarAlerta, 5000);
+        }
+
+        function ocultarAlerta() {
+            document.getElementById('alerta-global').className = 'alert';
+        }
+
+        // Modificar tasa del día manualmente
+        function actualizarTasa() {
+            const nuevaTasa = prompt("Ingresa la nueva tasa del día para el Dólar (USD) en Bolívares:", tasaUSD);
+            if (nuevaTasa !== null && !isNaN(nuevaTasa) && parseFloat(nuevaTasa) > 0) {
+                tasaUSD = parseFloat(nuevaTasa);
+                tasaEUR = +(tasaUSD * 1.098).toFixed(2);
+                actualizarVista();
+                mostrarAlerta("Tasa de cambio actualizada correctamente.", "success");
+            }
+        }
+
+        // Procesar Transferencias y Pago Móvil
+        function procesarOperacion(e, tipo) {
+            e.preventDefault();
+            let monto = 0;
+            let detalle = "";
+
+            if (tipo === 'Transferencia') {
+                monto = parseFloat(document.getElementById('trans-monto').value);
+                const banco = document.getElementById('trans-banco').value;
+                const concepto = document.getElementById('trans-concepto').value;
+                detalle = `Transferencia a ${banco} (${concepto})`;
+            } else {
+                monto = parseFloat(document.getElementById('pm-monto').value);
+                const telf = document.getElementById('pm-telefono').value;
+                detalle = `Pago Móvil Enviado - ${telf}`;
+            }
+
+            if (isNaN(monto) || monto <= 0) {
+                mostrarAlerta("Ingresa un monto válido mayor a cero.", "error");
+                return;
+            }
+
+            if (monto > saldoActual) {
+                mostrarAlerta("Fondos insuficientes para realizar esta operación.", "error");
+                return;
+            }
+
+            saldoActual -= monto;
+            agregarMovimiento(detalle, -monto);
+            actualizarVista();
+            e.target.reset();
+            mostrarAlerta(`¡${tipo} realizada con éxito por ${formatoBs(monto)}!`, "success");
+        }
+
+        // Abonar dinero (Simulador)
+        function recargarSaldo(e) {
+            e.preventDefault();
+            const monto = parseFloat(document.getElementById('dep-monto').value);
+            const desc = document.getElementById('dep-desc').value;
+
+            if (isNaN(monto) || monto <= 0) {
+                mostrarAlerta("Ingresa un monto válido para recargar.", "error");
+                return;
+            }
+
+            saldoActual += monto;
+            agregarMovimiento(desc, monto);
+            actualizarVista();
+            e.target.reset();
+            mostrarAlerta(`Se abonaron ${formatoBs(monto)} a tu cuenta.`, "success");
+        }
+
+        // Agregar gasto a la simulación preventiva
+        function agregarGastoPlanificado(e) {
+            e.preventDefault();
+            const concepto = document.getElementById('gasto-concepto').value.trim();
+            const monto = parseFloat(document.getElementById('gasto-monto').value);
+
+            if (!concepto || isNaN(monto) || monto <= 0) {
+                mostrarAlerta("Completa un concepto y un monto válido para el gasto.", "error");
+                return;
+            }
+
+            gastosPlanificados.push({
+                id: Date.now() + Math.floor(Math.random() * 1000),
+                concepto,
+                monto
+            });
+
+            e.target.reset();
+            actualizarSimuladorGastos();
+        }
+
+        // Eliminar un gasto individual de la simulación
+        function eliminarGasto(id) {
+            gastosPlanificados = gastosPlanificados.filter(item => item.id !== id);
+            actualizarSimuladorGastos();
+        }
+
+        // Vaciar todos los gastos simulados
+        function limpiarGastos() {
+            gastosPlanificados = [];
+            actualizarSimuladorGastos();
+        }
+
+        // Calcular totales y renderizar tabla de gastos proyectados
+        function actualizarSimuladorGastos() {
+            const totalGastos = gastosPlanificados.reduce((acum, item) => acum + item.monto, 0);
+            const saldoEstimado = saldoActual - totalGastos;
+
+            document.getElementById('total-gastos-bs').innerText = formatoBs(totalGastos);
+            document.getElementById('total-gastos-usd').innerText =
+                `${formatoDivisa('$', 'USD', totalGastos / tasaUSD)} · ${formatoDivisa('€', 'EUR', totalGastos / tasaEUR)}`;
+
+            const saldoEstimadoEl = document.getElementById('saldo-restante-bs');
+            const badgeEl = document.getElementById('estado-presupuesto');
+
+            saldoEstimadoEl.innerText = formatoBs(saldoEstimado);
+            document.getElementById('saldo-restante-usd').innerText =
+                `Equivalente: ${formatoDivisa('$', 'USD', saldoEstimado / tasaUSD)}`;
+
+            if (saldoEstimado < 0) {
+                saldoEstimadoEl.style.color = 'var(--danger)';
+                badgeEl.className = 'status-badge status-deficit';
+                badgeEl.innerText = `Déficit proyectado: te faltan ${formatoBs(Math.abs(saldoEstimado))}`;
+            } else if (totalGastos > 0 && saldoEstimado < saldoActual * 0.2) {
+                saldoEstimadoEl.style.color = 'var(--warning)';
+                badgeEl.className = 'status-badge status-warn';
+                badgeEl.innerText = 'Queda menos del 20% de tu saldo';
+            } else {
+                saldoEstimadoEl.style.color = 'var(--primary)';
+                badgeEl.className = 'status-badge status-ok';
+                badgeEl.innerText = 'Saldo cubierto';
+            }
+
+            const tablaGastos = document.getElementById('tabla-gastos');
+            tablaGastos.innerHTML = '';
+
+            if (gastosPlanificados.length === 0) {
+                tablaGastos.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--text-muted);">
+                            Aún no has agregado gastos para simular.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            gastosPlanificados.forEach(gasto => {
+                const fila = tablaGastos.insertRow();
+                fila.innerHTML = `
+                    <td>${gasto.concepto}</td>
+                    <td class="amount-neg">- ${formatoBs(gasto.monto)}</td>
+                    <td><button type="button" class="btn-delete" onclick="eliminarGasto(${gasto.id})">Quitar</button></td>
+                `;
+            });
+        }
+
+        // Registrar fila en la tabla de historial
+        function agregarMovimiento(descripcion, monto) {
+            const tabla = document.getElementById('tabla-movimientos');
+            const fila = tabla.insertRow(0);
+            
+            const hoy = new Date().toLocaleDateString('es-VE');
+            const ref = '#' + Math.floor(1000000 + Math.random() * 9000000);
+            const esPositivo = monto >= 0;
+
+            fila.innerHTML = `
+                <td>${hoy}</td>
+                <td>${descripcion}</td>
+                <td>${ref}</td>
+                <td class="${esPositivo ? 'amount-pos' : 'amount-neg'}">
+                    ${esPositivo ? '+ ' : '- '}${formatoBs(Math.abs(monto))}
+                </td>
+            `;
+        }
+
+        // Calculadora en tiempo real
+        function convertirMoneda(origen) {
+            const inputUsd = document.getElementById('calc-usd');
+            const inputVes = document.getElementById('calc-ves');
+
+            if (origen === 'USD') {
+                const val = parseFloat(inputUsd.value);
+                inputVes.value = isNaN(val) ? '' : (val * tasaUSD).toFixed(2);
+            } else {
+                const val = parseFloat(inputVes.value);
+                inputUsd.value = isNaN(val) ? '' : (val / tasaUSD).toFixed(2);
+            }
+        }
+
+        // Inicializar valores al cargar
+        actualizarVista();
+    </script>
+</body>
+</html>
