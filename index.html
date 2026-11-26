@@ -35,8 +35,120 @@
         body {
             background-color: var(--bg);
             color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* =========================================
+           PANTALLA DE AUTENTICACIÓN (LOGIN / REGISTRO)
+           ========================================= */
+        .auth-wrapper {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #0b1f3a 0%, #163863 55%, #0f294a 100%);
+        }
+
+        .auth-wrapper.hidden {
+            display: none;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .auth-logo span {
+            background: var(--accent);
+            color: white;
+            padding: 4px 9px;
+            border-radius: 7px;
+            font-size: 0.95rem;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin-bottom: 22px;
+            line-height: 1.4;
+        }
+
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab {
+            border: none;
+            background: transparent;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 6px rgba(15, 41, 74, 0.08);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .demo-hint {
+            margin-top: 16px;
+            padding: 10px 12px;
+            background: #f8fafc;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* =========================================
+           CONTENEDOR PRINCIPAL DE LA BANCA
+           ========================================= */
+        .app-shell {
             display: flex;
             min-height: 100vh;
+            width: 100%;
+        }
+
+        .app-shell.hidden {
+            display: none;
         }
 
         /* =========================================
@@ -78,6 +190,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            flex: 1;
         }
 
         .nav-btn {
@@ -104,6 +217,18 @@
             background-color: var(--primary-light);
             color: white;
             font-weight: 600;
+        }
+
+        .nav-btn.logout-btn {
+            margin-top: auto;
+            color: #fca5a5;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .nav-btn.logout-btn:hover {
+            background-color: rgba(220, 38, 38, 0.22);
+            color: #ffffff;
         }
 
         /* =========================================
@@ -473,9 +598,9 @@
            (<= 768px) -> Barra de navegación inferior fija
            ========================================= */
         @media (max-width: 768px) {
-            body {
+            .app-shell {
                 flex-direction: column;
-                padding-bottom: 76px; /* Espacio para el menú inferior */
+                padding-bottom: 76px;
             }
 
             .sidebar {
@@ -509,11 +634,16 @@
                 align-items: center;
                 justify-content: center;
                 text-align: center;
-                padding: 7px 4px;
+                padding: 7px 2px;
                 gap: 3px;
-                font-size: 0.7rem;
+                font-size: 0.66rem;
                 border-radius: 8px;
                 min-width: 0;
+            }
+
+            .nav-btn.logout-btn {
+                margin-top: 0;
+                border-top: none;
             }
 
             .nav-btn .nav-text {
@@ -563,6 +693,10 @@
            Tablas convertidas en tarjetas legibles
            ========================================= */
         @media (max-width: 480px) {
+            .auth-card {
+                padding: 24px 18px;
+            }
+
             .table-responsive {
                 border: none;
                 background: transparent;
@@ -627,287 +761,521 @@
 </head>
 <body>
 
-    <!-- Menú Lateral (Desktop/Laptop) / Barra Inferior (Tablet/Móvil) -->
-    <aside class="sidebar">
-        <div class="brand"><span>BND</span> Banco Digital</div>
-        <nav class="nav-list" aria-label="Navegación principal">
-            <button class="nav-btn active" onclick="mostrarSeccion('resumen', this)">
-                <span class="nav-icon">📊</span>
-                <span class="nav-text">Resumen</span>
-            </button>
-            <button class="nav-btn" onclick="mostrarSeccion('transferencias', this)">
-                <span class="nav-icon">💸</span>
-                <span class="nav-text">Transferir</span>
-            </button>
-            <button class="nav-btn" onclick="mostrarSeccion('pagomovil', this)">
-                <span class="nav-icon">📱</span>
-                <span class="nav-text">Pago Móvil</span>
-            </button>
-            <button class="nav-btn" onclick="mostrarSeccion('gastos', this)">
-                <span class="nav-icon">🧾</span>
-                <span class="nav-text">Gastos</span>
-            </button>
-            <button class="nav-btn" onclick="mostrarSeccion('calculadora', this)">
-                <span class="nav-icon">💱</span>
-                <span class="nav-text">Divisas</span>
-            </button>
-            <button class="nav-btn" onclick="mostrarSeccion('deposito', this)">
-                <span class="nav-icon">➕</span>
-                <span class="nav-text">Recargar</span>
-            </button>
-        </nav>
-    </aside>
+    <!-- =========================================
+         PANTALLA 1: INICIO DE SESIÓN Y REGISTRO
+         ========================================= -->
+    <div id="auth-screen" class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-logo"><span>BND</span> Banco Digital</div>
+            <p class="auth-subtitle">Banca en Línea Multimonedas (VES / USD / EUR)</p>
 
-    <!-- Área Principal -->
-    <main class="main-content">
-        <header>
-            <div class="user-info">
-                <h1>Prototipo de Banca en Línea Multimonedas (VES/USD/EUR) Basado en Estructuras Algorítmicas</h1>
-                <p>Bienvenido, Usuario · Cuenta Corriente N° 0102-0458-99-0012345678</p>
+            <div class="auth-tabs" role="tablist">
+                <button type="button" class="auth-tab active" id="tab-login" onclick="cambiarTabAuth('login')">Iniciar Sesión</button>
+                <button type="button" class="auth-tab" id="tab-registro" onclick="cambiarTabAuth('registro')">Registrarse</button>
             </div>
 
-            <!-- Indicador de Tasa del Día -->
-            <div class="rate-banner">
-                <div class="rate-item">
-                    <span class="rate-label">Tasa BCV (USD)</span>
-                    <span class="rate-value" id="display-tasa-usd">Bs. 918,77</span>
-                </div>
-                <div class="rate-item">
-                    <span class="rate-label">Tasa BCV (EUR)</span>
-                    <span class="rate-value" id="display-tasa-eur">Bs. 1.009,07</span>
-                </div>
-                <button class="btn-edit-rate" onclick="actualizarTasa()">Actualizar Tasa</button>
-            </div>
-        </header>
+            <div id="alerta-auth" class="alert" role="alert"></div>
 
-        <!-- Alerta de notificaciones -->
-        <div id="alerta-global" class="alert" role="alert"></div>
-
-        <!-- SECCIÓN 1: RESUMEN GENERAL -->
-        <section id="resumen" class="section active">
-            <div class="cards-grid">
-                <div class="card">
-                    <div class="card-title">Saldo Disponible (Bolívares)</div>
-                    <div class="balance-amount" id="saldo-bs">Bs. 45.938,50</div>
-                    <div class="balance-sub" id="saldo-usd-eq">Equivalente: $ 50,00 USD</div>
-                    <div class="balance-sub" id="saldo-eur-eq" style="color: var(--text-muted);">Equivalente: € 45,53 EUR</div>
+            <!-- Formulario Iniciar Sesión -->
+            <form id="form-login" class="auth-form active" onsubmit="iniciarSesion(event)">
+                <div class="form-group">
+                    <label for="login-usuario">Usuario o Cédula</label>
+                    <input type="text" id="login-usuario" placeholder="Ej. samuel o V-28123456" autocomplete="username" required>
                 </div>
-                <div class="card">
-                    <div class="card-title">Estado de Cuenta</div>
-                    <div class="balance-amount" style="font-size: 1.5rem; color: var(--accent);">Activa</div>
-                    <div class="balance-sub" style="color: var(--text-muted);">Límite diario: Bs. 150.000,00</div>
+                <div class="form-group">
+                    <label for="login-clave">Contraseña</label>
+                    <input type="password" id="login-clave" placeholder="••••••••" autocomplete="current-password" required>
                 </div>
-            </div>
+                <button type="submit" class="btn-submit">Ingresar a la Banca</button>
 
-            <h3 style="margin-bottom: 14px; color: var(--primary);">Últimos Movimientos</h3>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Descripción</th>
-                            <th>Referencia</th>
-                            <th>Monto (Bs.)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-movimientos">
-                        <tr>
-                            <td data-label="Fecha">24/11/2026</td>
-                            <td data-label="Descripción">Abono Nómina / Depósito Inicial</td>
-                            <td data-label="Referencia">#0049182</td>
-                            <td data-label="Monto (Bs.)" class="amount-pos">+ Bs. 50.000,00</td>
-                        </tr>
-                        <tr>
-                            <td data-label="Fecha">24/11/2026</td>
-                            <td data-label="Descripción">Pago Móvil Enviado - 0414***8821</td>
-                            <td data-label="Referencia">#0049195</td>
-                            <td data-label="Monto (Bs.)" class="amount-neg">- Bs. 4.061,50</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 2: TRANSFERENCIAS -->
-        <section id="transferencias" class="section">
-            <div class="form-container">
-                <h2 style="margin-bottom: 18px; color: var(--primary);">Transferencia Bancaria</h2>
-                <form onsubmit="procesarOperacion(event, 'Transferencia')">
-                    <div class="form-group">
-                        <label for="trans-banco">Banco Destino</label>
-                        <select id="trans-banco" required>
-                            <option value="Banco de Venezuela">Banco de Venezuela (0102)</option>
-                            <option value="Banesco">Banesco (0134)</option>
-                            <option value="Mercantil">Banco Mercantil (0105)</option>
-                            <option value="Provincial">BBVA Provincial (0108)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="trans-cuenta">Número de Cuenta (20 dígitos)</label>
-                        <input type="text" id="trans-cuenta" inputmode="numeric" maxlength="20" minlength="20" placeholder="01020000000000000000" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="trans-doc">Cédula o RIF del Beneficiario</label>
-                        <input type="text" id="trans-doc" placeholder="V-12345678" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="trans-monto">Monto a transferir (Bs.)</label>
-                        <input type="number" id="trans-monto" inputmode="decimal" step="0.01" min="1" placeholder="0.00" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="trans-concepto">Concepto</label>
-                        <input type="text" id="trans-concepto" placeholder="Ej. Pago de servicios" required>
-                    </div>
-                    <button type="submit" class="btn-submit">Realizar Transferencia</button>
-                </form>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 3: PAGO MÓVIL -->
-        <section id="pagomovil" class="section">
-            <div class="form-container">
-                <h2 style="margin-bottom: 18px; color: var(--primary);">Pago Móvil Interbancario</h2>
-                <form onsubmit="procesarOperacion(event, 'Pago Móvil')">
-                    <div class="form-group">
-                        <label for="pm-banco">Banco Destino</label>
-                        <select id="pm-banco" required>
-                            <option value="Banco de Venezuela">Banco de Venezuela</option>
-                            <option value="Banesco">Banesco</option>
-                            <option value="Mercantil">Mercantil</option>
-                            <option value="BNC">Banco Nacional de Crédito (BNC)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="pm-telefono">Teléfono Celular</label>
-                        <input type="tel" id="pm-telefono" inputmode="tel" placeholder="04141234567" maxlength="11" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pm-cedula">Cédula de Identidad</label>
-                        <input type="text" id="pm-cedula" placeholder="V-25123456" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pm-monto">Monto (Bs.)</label>
-                        <input type="number" id="pm-monto" inputmode="decimal" step="0.01" min="1" placeholder="0.00" required>
-                    </div>
-                    <button type="submit" class="btn-submit">Enviar Pago Móvil</button>
-                </form>
-            </div>
-        </section>
-
-        <!-- SECCIÓN 4: PLANIFICADOR DE GASTOS -->
-        <section id="gastos" class="section">
-            <div class="cards-grid">
-                <div class="card">
-                    <div class="card-title">Saldo Actual Disponible</div>
-                    <div class="balance-amount" id="gastos-saldo-actual-bs">Bs. 45.938,50</div>
-                    <div class="balance-sub" id="gastos-saldo-actual-usd">En USD: $ 50,00 USD</div>
-                    <div class="balance-sub" id="gastos-saldo-actual-eur" style="color: var(--text-muted);">En EUR: € 45,53 EUR</div>
+                <div class="demo-hint">
+                    Usuario de demostración: <strong>samuel</strong> · Clave: <strong>1234</strong>
                 </div>
-                <div class="card">
-                    <div class="card-title">Total Gastos Simulados</div>
-                    <div class="balance-amount" id="total-gastos-bs" style="color: var(--danger);">Bs. 0,00</div>
-                    <div class="balance-sub" id="total-gastos-usd" style="color: var(--text-muted);">En USD: $ 0,00 USD</div>
-                    <div class="balance-sub" id="total-gastos-eur" style="color: var(--text-muted);">En EUR: € 0,00 EUR</div>
-                </div>
-                <div class="card">
-                    <div class="card-title">Saldo Restante Tras Gastos</div>
-                    <div class="balance-amount" id="saldo-restante-bs">Bs. 45.938,50</div>
-                    <div class="balance-sub" id="saldo-restante-usd">En USD: $ 50,00 USD</div>
-                    <div class="balance-sub" id="saldo-restante-eur" style="color: var(--text-muted);">En EUR: € 45,53 EUR</div>
-                    <span id="estado-presupuesto" class="status-badge status-ok">Saldo cubierto</span>
-                </div>
-            </div>
+            </form>
 
-            <div class="planner-layout">
+            <!-- Formulario Registro de Usuario -->
+            <form id="form-registro" class="auth-form" onsubmit="registrarUsuario(event)">
+                <div class="form-group">
+                    <label for="reg-nombre">Nombre y Apellido</label>
+                    <input type="text" id="reg-nombre" placeholder="Ej. Samuel Rondón" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-cedula">Cédula de Identidad</label>
+                    <input type="text" id="reg-cedula" placeholder="Ej. V-28123456" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-usuario">Nombre de Usuario</label>
+                    <input type="text" id="reg-usuario" placeholder="Ej. srondon" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-clave">Contraseña (mínimo 4 caracteres)</label>
+                    <input type="password" id="reg-clave" minlength="4" placeholder="Crea una clave" autocomplete="new-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-saldo">Saldo Inicial de Apertura (Bs.)</label>
+                    <input type="number" id="reg-saldo" inputmode="decimal" step="0.01" min="0" value="45938.50" required>
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: var(--accent);">Crear Cuenta y Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- =========================================
+         PANTALLA 2: APLICACIÓN BANCARIA PRINCIPAL
+         ========================================= -->
+    <div id="bank-app" class="app-shell hidden">
+        <!-- Menú Lateral (Desktop/Laptop) / Barra Inferior (Tablet/Móvil) -->
+        <aside class="sidebar">
+            <div class="brand"><span>BND</span> Banco Digital</div>
+            <nav class="nav-list" aria-label="Navegación principal">
+                <button class="nav-btn active" onclick="mostrarSeccion('resumen', this)">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Resumen</span>
+                </button>
+                <button class="nav-btn" onclick="mostrarSeccion('transferencias', this)">
+                    <span class="nav-icon">💸</span>
+                    <span class="nav-text">Transferir</span>
+                </button>
+                <button class="nav-btn" onclick="mostrarSeccion('pagomovil', this)">
+                    <span class="nav-icon">📱</span>
+                    <span class="nav-text">Pago Móvil</span>
+                </button>
+                <button class="nav-btn" onclick="mostrarSeccion('gastos', this)">
+                    <span class="nav-icon">🧾</span>
+                    <span class="nav-text">Gastos</span>
+                </button>
+                <button class="nav-btn" onclick="mostrarSeccion('calculadora', this)">
+                    <span class="nav-icon">💱</span>
+                    <span class="nav-text">Divisas</span>
+                </button>
+                <button class="nav-btn" onclick="mostrarSeccion('deposito', this)">
+                    <span class="nav-icon">➕</span>
+                    <span class="nav-text">Recargar</span>
+                </button>
+                <button class="nav-btn logout-btn" onclick="cerrarSesion()">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-text">Salir</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Área Principal -->
+        <main class="main-content">
+            <header>
+                <div class="user-info">
+                    <h1>Prototipo de Banca en Línea Multimonedas (VES/USD/EUR) Basado en Estructuras Algorítmicas</h1>
+                    <p id="header-user-meta">Bienvenido, Usuario · Cuenta Corriente N° 0102-0458-99-0012345678</p>
+                </div>
+
+                <!-- Indicador de Tasa del Día -->
+                <div class="rate-banner">
+                    <div class="rate-item">
+                        <span class="rate-label">Tasa BCV (USD)</span>
+                        <span class="rate-value" id="display-tasa-usd">Bs. 918,77</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-label">Tasa BCV (EUR)</span>
+                        <span class="rate-value" id="display-tasa-eur">Bs. 1.009,07</span>
+                    </div>
+                    <button class="btn-edit-rate" onclick="actualizarTasa()">Actualizar Tasa</button>
+                </div>
+            </header>
+
+            <!-- Alerta de notificaciones -->
+            <div id="alerta-global" class="alert" role="alert"></div>
+
+            <!-- SECCIÓN 1: RESUMEN GENERAL -->
+            <section id="resumen" class="section active">
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-title">Saldo Disponible (Bolívares)</div>
+                        <div class="balance-amount" id="saldo-bs">Bs. 45.938,50</div>
+                        <div class="balance-sub" id="saldo-usd-eq">Equivalente: $ 50,00 USD</div>
+                        <div class="balance-sub" id="saldo-eur-eq" style="color: var(--text-muted);">Equivalente: € 45,53 EUR</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Estado de Cuenta</div>
+                        <div class="balance-amount" style="font-size: 1.5rem; color: var(--accent);">Activa</div>
+                        <div class="balance-sub" style="color: var(--text-muted);">Límite diario: Bs. 150.000,00</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 14px; color: var(--primary);">Últimos Movimientos</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Referencia</th>
+                                <th>Monto (Bs.)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-movimientos"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: TRANSFERENCIAS -->
+            <section id="transferencias" class="section">
                 <div class="form-container">
-                    <h2 style="margin-bottom: 10px; color: var(--primary);">Simular Gastos Pendientes</h2>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 18px;">
-                        Carga gastos para ver cuánto te quedaría en <strong>Bolívares</strong> y <strong>Dólares</strong> a la tasa del día. Puedes dejarlos en simulación o ejecutarlos como gasto real.
-                    </p>
-                    <form onsubmit="agregarGastoPlanificado(event)">
+                    <h2 style="margin-bottom: 18px; color: var(--primary);">Transferencia Bancaria</h2>
+                    <form onsubmit="procesarOperacion(event, 'Transferencia')">
                         <div class="form-group">
-                            <label for="gasto-concepto">Concepto del gasto</label>
-                            <input type="text" id="gasto-concepto" placeholder="Ej. Mercado, transporte, internet" required>
+                            <label for="trans-banco">Banco Destino</label>
+                            <select id="trans-banco" required>
+                                <option value="Banco de Venezuela">Banco de Venezuela (0102)</option>
+                                <option value="Banesco">Banesco (0134)</option>
+                                <option value="Mercantil">Banco Mercantil (0105)</option>
+                                <option value="Provincial">BBVA Provincial (0108)</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="gasto-monto">Monto del gasto (Bs.)</label>
-                            <input type="number" id="gasto-monto" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00" required>
+                            <label for="trans-cuenta">Número de Cuenta (20 dígitos)</label>
+                            <input type="text" id="trans-cuenta" inputmode="numeric" maxlength="20" minlength="20" placeholder="01020000000000000000" required>
                         </div>
-                        <button type="submit" class="btn-submit">Agregar Gasto a la Simulación</button>
+                        <div class="form-group">
+                            <label for="trans-doc">Cédula o RIF del Beneficiario</label>
+                            <input type="text" id="trans-doc" placeholder="V-12345678" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="trans-monto">Monto a transferir (Bs.)</label>
+                            <input type="number" id="trans-monto" inputmode="decimal" step="0.01" min="1" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="trans-concepto">Concepto</label>
+                            <input type="text" id="trans-concepto" placeholder="Ej. Pago de servicios" required>
+                        </div>
+                        <button type="submit" class="btn-submit">Realizar Transferencia</button>
                     </form>
                 </div>
+            </section>
 
-                <div>
-                    <div class="planner-header-actions">
-                        <h3 style="color: var(--primary);">Detalle de Gastos Proyectados</h3>
-                        <button type="button" class="btn-secondary" onclick="limpiarGastos()">Limpiar lista</button>
+            <!-- SECCIÓN 3: PAGO MÓVIL -->
+            <section id="pagomovil" class="section">
+                <div class="form-container">
+                    <h2 style="margin-bottom: 18px; color: var(--primary);">Pago Móvil Interbancario</h2>
+                    <form onsubmit="procesarOperacion(event, 'Pago Móvil')">
+                        <div class="form-group">
+                            <label for="pm-banco">Banco Destino</label>
+                            <select id="pm-banco" required>
+                                <option value="Banco de Venezuela">Banco de Venezuela</option>
+                                <option value="Banesco">Banesco</option>
+                                <option value="Mercantil">Mercantil</option>
+                                <option value="BNC">Banco Nacional de Crédito (BNC)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pm-telefono">Teléfono Celular</label>
+                            <input type="tel" id="pm-telefono" inputmode="tel" placeholder="04141234567" maxlength="11" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pm-cedula">Cédula de Identidad</label>
+                            <input type="text" id="pm-cedula" placeholder="V-25123456" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pm-monto">Monto (Bs.)</label>
+                            <input type="number" id="pm-monto" inputmode="decimal" step="0.01" min="1" placeholder="0.00" required>
+                        </div>
+                        <button type="submit" class="btn-submit">Enviar Pago Móvil</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: PLANIFICADOR DE GASTOS -->
+            <section id="gastos" class="section">
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-title">Saldo Actual Disponible</div>
+                        <div class="balance-amount" id="gastos-saldo-actual-bs">Bs. 45.938,50</div>
+                        <div class="balance-sub" id="gastos-saldo-actual-usd">En USD: $ 50,00 USD</div>
+                        <div class="balance-sub" id="gastos-saldo-actual-eur" style="color: var(--text-muted);">En EUR: € 45,53 EUR</div>
                     </div>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Concepto</th>
-                                    <th>Monto (Bs. / USD)</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabla-gastos">
-                                <tr>
-                                    <td colspan="3" style="text-align: center; color: var(--text-muted);">
-                                        Aún no has agregado gastos para simular.
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="card">
+                        <div class="card-title">Total Gastos Simulados</div>
+                        <div class="balance-amount" id="total-gastos-bs" style="color: var(--danger);">Bs. 0,00</div>
+                        <div class="balance-sub" id="total-gastos-usd" style="color: var(--text-muted);">En USD: $ 0,00 USD</div>
+                        <div class="balance-sub" id="total-gastos-eur" style="color: var(--text-muted);">En EUR: € 0,00 EUR</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Saldo Restante Tras Gastos</div>
+                        <div class="balance-amount" id="saldo-restante-bs">Bs. 45.938,50</div>
+                        <div class="balance-sub" id="saldo-restante-usd">En USD: $ 50,00 USD</div>
+                        <div class="balance-sub" id="saldo-restante-eur" style="color: var(--text-muted);">En EUR: € 45,53 EUR</div>
+                        <span id="estado-presupuesto" class="status-badge status-ok">Saldo cubierto</span>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- SECCIÓN 5: CALCULADORA DE DIVISAS -->
-        <section id="calculadora" class="section">
-            <div class="form-container">
-                <h2 style="margin-bottom: 10px; color: var(--primary);">Conversor de Moneda</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Calcula el equivalente según la tasa oficial vigente.</p>
-                
-                <div class="form-group">
-                    <label for="calc-usd">Monto en Dólares (USD)</label>
-                    <input type="number" id="calc-usd" inputmode="decimal" step="0.01" placeholder="1.00" oninput="convertirMoneda('USD')">
-                </div>
-                <div class="form-group">
-                    <label for="calc-ves">Equivalente en Bolívares (VES)</label>
-                    <input type="number" id="calc-ves" inputmode="decimal" step="0.01" placeholder="918.77" oninput="convertirMoneda('VES')">
-                </div>
-            </div>
-        </section>
+                <div class="planner-layout">
+                    <div class="form-container">
+                        <h2 style="margin-bottom: 10px; color: var(--primary);">Simular Gastos Pendientes</h2>
+                        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 18px;">
+                            Carga gastos para ver cuánto te quedaría en <strong>Bolívares</strong> y <strong>Dólares</strong> a la tasa del día. Puedes dejarlos en simulación o ejecutarlos como gasto real.
+                        </p>
+                        <form onsubmit="agregarGastoPlanificado(event)">
+                            <div class="form-group">
+                                <label for="gasto-concepto">Concepto del gasto</label>
+                                <input type="text" id="gasto-concepto" placeholder="Ej. Mercado, transporte, internet" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gasto-monto">Monto del gasto (Bs.)</label>
+                                <input type="number" id="gasto-monto" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00" required>
+                            </div>
+                            <button type="submit" class="btn-submit">Agregar Gasto a la Simulación</button>
+                        </form>
+                    </div>
 
-        <!-- SECCIÓN 6: RECARGAR SALDO (PARA PRUEBAS) -->
-        <section id="deposito" class="section">
-            <div class="form-container">
-                <h2 style="margin-bottom: 18px; color: var(--primary);">Recargar Saldo (Simulador)</h2>
-                <form onsubmit="recargarSaldo(event)">
+                    <div>
+                        <div class="planner-header-actions">
+                            <h3 style="color: var(--primary);">Detalle de Gastos Proyectados</h3>
+                            <button type="button" class="btn-secondary" onclick="limpiarGastos()">Limpiar lista</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th>Monto (Bs. / USD)</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-gastos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 5: CALCULADORA DE DIVISAS -->
+            <section id="calculadora" class="section">
+                <div class="form-container">
+                    <h2 style="margin-bottom: 10px; color: var(--primary);">Conversor de Moneda</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Calcula el equivalente según la tasa oficial vigente.</p>
+                    
                     <div class="form-group">
-                        <label for="dep-monto">Monto a depositar en cuenta (Bs.)</label>
-                        <input type="number" id="dep-monto" inputmode="decimal" step="0.01" min="1" placeholder="5000.00" required>
+                        <label for="calc-usd">Monto en Dólares (USD)</label>
+                        <input type="number" id="calc-usd" inputmode="decimal" step="0.01" placeholder="1.00" oninput="convertirMoneda('USD')">
                     </div>
                     <div class="form-group">
-                        <label for="dep-desc">Descripción del ingreso</label>
-                        <input type="text" id="dep-desc" value="Depósito en efectivo / Taquilla" required>
+                        <label for="calc-ves">Equivalente en Bolívares (VES)</label>
+                        <input type="number" id="calc-ves" inputmode="decimal" step="0.01" placeholder="918.77" oninput="convertirMoneda('VES')">
                     </div>
-                    <button type="submit" class="btn-submit" style="background-color: var(--accent);">Abonar Fondos</button>
-                </form>
-            </div>
-        </section>
-    </main>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 6: RECARGAR SALDO (PARA PRUEBAS) -->
+            <section id="deposito" class="section">
+                <div class="form-container">
+                    <h2 style="margin-bottom: 18px; color: var(--primary);">Recargar Saldo (Simulador)</h2>
+                    <form onsubmit="recargarSaldo(event)">
+                        <div class="form-group">
+                            <label for="dep-monto">Monto a depositar en cuenta (Bs.)</label>
+                            <input type="number" id="dep-monto" inputmode="decimal" step="0.01" min="1" placeholder="5000.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dep-desc">Descripción del ingreso</label>
+                            <input type="text" id="dep-desc" value="Depósito en efectivo / Taquilla" required>
+                        </div>
+                        <button type="submit" class="btn-submit" style="background-color: var(--accent);">Abonar Fondos</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <script>
-        // Estado inicial de la cuenta y simulación de gastos
-        let saldoActual = 45938.50;
+        // =========================================
+        // GESTIÓN DE USUARIOS Y SESIONES (AUTH)
+        // =========================================
+        const STORAGE_USERS_KEY = 'bnd_usuarios_v1';
+        const STORAGE_SESSION_KEY = 'bnd_usuario_activo_v1';
+        const STORAGE_RATES_KEY = 'bnd_tasas_v1';
+
         let tasaUSD = 918.77;
         let tasaEUR = 1009.07;
-        let gastosPlanificados = [];
 
-        // Formateadores de moneda
+        let usuariosDB = [];
+        let usuarioActual = null;
+
+        function generarNumeroCuenta() {
+            let sufijo = '';
+            for (let i = 0; i < 10; i++) {
+                sufijo += Math.floor(Math.random() * 10);
+            }
+            return `0102-0458-99-${sufijo}`;
+        }
+
+        function inicializarAlmacenamiento() {
+            const tasasGuardadas = localStorage.getItem(STORAGE_RATES_KEY);
+            if (tasasGuardadas) {
+                const parsed = JSON.parse(tasasGuardadas);
+                tasaUSD = parsed.usd || 918.77;
+                tasaEUR = parsed.eur || 1009.07;
+            }
+
+            const usuariosGuardados = localStorage.getItem(STORAGE_USERS_KEY);
+            if (usuariosGuardados) {
+                usuariosDB = JSON.parse(usuariosGuardados);
+            } else {
+                // Usuario precargado para demostraciones
+                usuariosDB = [
+                    {
+                        nombre: 'Samuel Rondón',
+                        cedula: 'V-28123456',
+                        usuario: 'samuel',
+                        clave: '1234',
+                        cuenta: '0102-0458-99-0012345678',
+                        saldo: 45938.50,
+                        movimientos: [
+                            {
+                                fecha: '24/11/2026',
+                                descripcion: 'Pago Móvil Enviado - 0414***8821',
+                                referencia: '#0049195',
+                                monto: -4061.50
+                            },
+                            {
+                                fecha: '24/11/2026',
+                                descripcion: 'Abono Nómina / Depósito Inicial',
+                                referencia: '#0049182',
+                                monto: 50000.00
+                            }
+                        ],
+                        gastosPlanificados: []
+                    }
+                ];
+                guardarUsuarios();
+            }
+
+            const sesionActiva = localStorage.getItem(STORAGE_SESSION_KEY);
+            if (sesionActiva) {
+                const encontrado = usuariosDB.find(u => u.usuario === sesionActiva);
+                if (encontrado) {
+                    usuarioActual = encontrado;
+                    activarVistaBancaria();
+                }
+            }
+        }
+
+        function guardarUsuarios() {
+            localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(usuariosDB));
+        }
+
+        function guardarTasas() {
+            localStorage.setItem(STORAGE_RATES_KEY, JSON.stringify({ usd: tasaUSD, eur: tasaEUR }));
+        }
+
+        function cambiarTabAuth(tab) {
+            ocultarAlertaAuth();
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-registro').classList.toggle('active', tab === 'registro');
+            document.getElementById('form-login').classList.toggle('active', tab === 'login');
+            document.getElementById('form-registro').classList.toggle('active', tab === 'registro');
+        }
+
+        function mostrarAlertaAuth(mensaje, tipo) {
+            const alerta = document.getElementById('alerta-auth');
+            alerta.innerText = mensaje;
+            alerta.className = 'alert ' + tipo;
+        }
+
+        function ocultarAlertaAuth() {
+            document.getElementById('alerta-auth').className = 'alert';
+        }
+
+        function registrarUsuario(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('reg-nombre').value.trim();
+            const cedula = document.getElementById('reg-cedula').value.trim().toUpperCase();
+            const usuario = document.getElementById('reg-usuario').value.trim().toLowerCase();
+            const clave = document.getElementById('reg-clave').value;
+            const saldoInicial = parseFloat(document.getElementById('reg-saldo').value);
+
+            if (!nombre || !cedula || !usuario || clave.length < 4 || isNaN(saldoInicial) || saldoInicial < 0) {
+                mostrarAlertaAuth('Completa todos los campos correctamente (clave de al menos 4 caracteres).', 'error');
+                return;
+            }
+
+            const existe = usuariosDB.some(u => u.usuario === usuario || u.cedula.toUpperCase() === cedula);
+            if (existe) {
+                mostrarAlertaAuth('Ese nombre de usuario o cédula ya se encuentra registrado.', 'error');
+                return;
+            }
+
+            const hoy = new Date().toLocaleDateString('es-VE');
+            const nuevoUsuario = {
+                nombre,
+                cedula,
+                usuario,
+                clave,
+                cuenta: generarNumeroCuenta(),
+                saldo: saldoInicial,
+                movimientos: saldoInicial > 0 ? [
+                    {
+                        fecha: hoy,
+                        descripcion: 'Apertura de Cuenta / Depósito Inicial',
+                        referencia: '#' + Math.floor(1000000 + Math.random() * 9000000),
+                        monto: saldoInicial
+                    }
+                ] : [],
+                gastosPlanificados: []
+            };
+
+            usuariosDB.push(nuevoUsuario);
+            guardarUsuarios();
+
+            usuarioActual = nuevoUsuario;
+            localStorage.setItem(STORAGE_SESSION_KEY, usuarioActual.usuario);
+            e.target.reset();
+            activarVistaBancaria();
+            mostrarAlerta(`¡Bienvenido, ${usuarioActual.nombre}! Tu cuenta fue creada exitosamente.`, 'success');
+        }
+
+        function iniciarSesion(e) {
+            e.preventDefault();
+            const identificador = document.getElementById('login-usuario').value.trim().toLowerCase();
+            const clave = document.getElementById('login-clave').value;
+
+            const encontrado = usuariosDB.find(
+                u => (u.usuario === identificador || u.cedula.toLowerCase() === identificador) && u.clave === clave
+            );
+
+            if (!encontrado) {
+                mostrarAlertaAuth('Usuario/cédula o contraseña incorrectos.', 'error');
+                return;
+            }
+
+            usuarioActual = encontrado;
+            localStorage.setItem(STORAGE_SESSION_KEY, usuarioActual.usuario);
+            e.target.reset();
+            ocultarAlertaAuth();
+            activarVistaBancaria();
+        }
+
+        function cerrarSesion() {
+            usuarioActual = null;
+            localStorage.removeItem(STORAGE_SESSION_KEY);
+            document.getElementById('bank-app').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            ocultarAlerta();
+        }
+
+        function activarVistaBancaria() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('bank-app').classList.remove('hidden');
+
+            document.getElementById('header-user-meta').innerText =
+                `Bienvenido, ${usuarioActual.nombre} (${usuarioActual.cedula}) · Cuenta N° ${usuarioActual.cuenta}`;
+
+            // Volver siempre a la pestaña Resumen al entrar
+            const primerBtn = document.querySelector('.nav-btn');
+            mostrarSeccion('resumen', primerBtn);
+            renderizarMovimientos();
+            actualizarVista();
+        }
+
+        // =========================================
+        // FORMATEADORES Y ACTUALIZACIÓN DE INTERFAZ
+        // =========================================
         function formatoBs(valor) {
             return 'Bs. ' + valor.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
@@ -916,8 +1284,10 @@
             return `${simbolo} ${valor.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${codigo}`;
         }
 
-        // Actualizar interfaz de saldos, tasas y simulación de gastos
         function actualizarVista() {
+            if (!usuarioActual) return;
+
+            const saldoActual = usuarioActual.saldo;
             document.getElementById('saldo-bs').innerText = formatoBs(saldoActual);
             document.getElementById('saldo-usd-eq').innerText = `Equivalente: ${formatoDivisa('$', 'USD', saldoActual / tasaUSD)}`;
             document.getElementById('saldo-eur-eq').innerText = `Equivalente: ${formatoDivisa('€', 'EUR', saldoActual / tasaEUR)}`;
@@ -928,18 +1298,15 @@
             actualizarSimuladorGastos();
         }
 
-        // Navegación entre pestañas
         function mostrarSeccion(idSeccion, boton) {
             document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             
             document.getElementById(idSeccion).classList.add('active');
-            boton.classList.add('active');
+            if (boton) boton.classList.add('active');
             ocultarAlerta();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Mostrar alertas
         function mostrarAlerta(mensaje, tipo) {
             const alerta = document.getElementById('alerta-global');
             alerta.innerText = mensaje;
@@ -951,18 +1318,20 @@
             document.getElementById('alerta-global').className = 'alert';
         }
 
-        // Modificar tasa del día manualmente
+        // =========================================
+        // OPERACIONES BANCARIAS Y CAMBIARIAS
+        // =========================================
         function actualizarTasa() {
             const nuevaTasa = prompt("Ingresa la nueva tasa del día para el Dólar (USD) en Bolívares:", tasaUSD);
             if (nuevaTasa !== null && !isNaN(nuevaTasa) && parseFloat(nuevaTasa) > 0) {
                 tasaUSD = parseFloat(nuevaTasa);
                 tasaEUR = +(tasaUSD * 1.098).toFixed(2);
+                guardarTasas();
                 actualizarVista();
                 mostrarAlerta("Tasa de cambio actualizada correctamente.", "success");
             }
         }
 
-        // Procesar Transferencias y Pago Móvil
         function procesarOperacion(e, tipo) {
             e.preventDefault();
             let monto = 0;
@@ -984,19 +1353,19 @@
                 return;
             }
 
-            if (monto > saldoActual) {
+            if (monto > usuarioActual.saldo) {
                 mostrarAlerta("Fondos insuficientes para realizar esta operación.", "error");
                 return;
             }
 
-            saldoActual -= monto;
-            agregarMovimiento(detalle, -monto);
+            usuarioActual.saldo -= monto;
+            registrarMovimiento(detalle, -monto);
+            guardarUsuarios();
             actualizarVista();
             e.target.reset();
             mostrarAlerta(`¡${tipo} realizada con éxito por ${formatoBs(monto)}!`, "success");
         }
 
-        // Abonar dinero (Simulador)
         function recargarSaldo(e) {
             e.preventDefault();
             const monto = parseFloat(document.getElementById('dep-monto').value);
@@ -1007,14 +1376,17 @@
                 return;
             }
 
-            saldoActual += monto;
-            agregarMovimiento(desc, monto);
+            usuarioActual.saldo += monto;
+            registrarMovimiento(desc, monto);
+            guardarUsuarios();
             actualizarVista();
             e.target.reset();
             mostrarAlerta(`Se abonaron ${formatoBs(monto)} a tu cuenta.`, "success");
         }
 
-        // Agregar gasto a la simulación preventiva
+        // =========================================
+        // PLANIFICADOR DE GASTOS
+        // =========================================
         function agregarGastoPlanificado(e) {
             e.preventDefault();
             const concepto = document.getElementById('gasto-concepto').value.trim();
@@ -1025,61 +1397,62 @@
                 return;
             }
 
-            gastosPlanificados.push({
+            usuarioActual.gastosPlanificados.push({
                 id: Date.now() + Math.floor(Math.random() * 1000),
                 concepto,
                 monto
             });
 
+            guardarUsuarios();
             e.target.reset();
             actualizarSimuladorGastos();
         }
 
-        // Ejecutar un gasto planificado como operación real
         function ejecutarGastoPlanificado(id) {
-            const gasto = gastosPlanificados.find(item => item.id === id);
+            const gasto = usuarioActual.gastosPlanificados.find(item => item.id === id);
             if (!gasto) return;
 
-            if (gasto.monto > saldoActual) {
+            if (gasto.monto > usuarioActual.saldo) {
                 mostrarAlerta(`Fondos insuficientes para ejecutar "${gasto.concepto}" (${formatoBs(gasto.monto)}).`, "error");
                 return;
             }
 
-            saldoActual -= gasto.monto;
-            gastosPlanificados = gastosPlanificados.filter(item => item.id !== id);
-            agregarMovimiento(`Gasto Ejecutado: ${gasto.concepto}`, -gasto.monto);
+            usuarioActual.saldo -= gasto.monto;
+            usuarioActual.gastosPlanificados = usuarioActual.gastosPlanificados.filter(item => item.id !== id);
+            registrarMovimiento(`Gasto Ejecutado: ${gasto.concepto}`, -gasto.monto);
+            guardarUsuarios();
             actualizarVista();
             mostrarAlerta(`Gasto "${gasto.concepto}" ejecutado por ${formatoBs(gasto.monto)}. Saldo actualizado.`, "success");
         }
 
-        // Eliminar un gasto individual de la simulación
         function eliminarGasto(id) {
-            gastosPlanificados = gastosPlanificados.filter(item => item.id !== id);
+            usuarioActual.gastosPlanificados = usuarioActual.gastosPlanificados.filter(item => item.id !== id);
+            guardarUsuarios();
             actualizarSimuladorGastos();
         }
 
-        // Vaciar todos los gastos simulados
         function limpiarGastos() {
-            gastosPlanificados = [];
+            usuarioActual.gastosPlanificados = [];
+            guardarUsuarios();
             actualizarSimuladorGastos();
         }
 
-        // Calcular totales y renderizar tabla de gastos proyectados
         function actualizarSimuladorGastos() {
-            const totalGastos = gastosPlanificados.reduce((acum, item) => acum + item.monto, 0);
+            if (!usuarioActual) return;
+
+            const saldoActual = usuarioActual.saldo;
+            const listaGastos = usuarioActual.gastosPlanificados;
+            const totalGastos = listaGastos.reduce((acum, item) => acum + item.monto, 0);
             const saldoEstimado = saldoActual - totalGastos;
 
-            // Tarjeta 1: Saldo real actual en VES, USD y EUR
             document.getElementById('gastos-saldo-actual-bs').innerText = formatoBs(saldoActual);
             document.getElementById('gastos-saldo-actual-usd').innerText = `En USD: ${formatoDivisa('$', 'USD', saldoActual / tasaUSD)}`;
             document.getElementById('gastos-saldo-actual-eur').innerText = `En EUR: ${formatoDivisa('€', 'EUR', saldoActual / tasaEUR)}`;
 
-            // Tarjeta 2: Total de gastos simulados en VES, USD y EUR
             document.getElementById('total-gastos-bs').innerText = formatoBs(totalGastos);
             document.getElementById('total-gastos-usd').innerText = `En USD: ${formatoDivisa('$', 'USD', totalGastos / tasaUSD)}`;
             document.getElementById('total-gastos-eur').innerText = `En EUR: ${formatoDivisa('€', 'EUR', totalGastos / tasaEUR)}`;
 
-            // Tarjeta 3: Saldo restante tras gastos en VES, USD y EUR
             const saldoEstimadoEl = document.getElementById('saldo-restante-bs');
             const badgeEl = document.getElementById('estado-presupuesto');
 
@@ -1104,7 +1477,7 @@
             const tablaGastos = document.getElementById('tabla-gastos');
             tablaGastos.innerHTML = '';
 
-            if (gastosPlanificados.length === 0) {
+            if (listaGastos.length === 0) {
                 tablaGastos.innerHTML = `
                     <tr>
                         <td colspan="3" style="text-align: center; color: var(--text-muted);">
@@ -1115,12 +1488,12 @@
                 return;
             }
 
-            gastosPlanificados.forEach(gasto => {
+            listaGastos.forEach(gasto => {
                 const fila = tablaGastos.insertRow();
                 const eqUsd = formatoDivisa('$', 'USD', gasto.monto / tasaUSD);
                 fila.innerHTML = `
                     <td data-label="Concepto">${gasto.concepto}</td>
-                    <td data-label="Monto">
+                    <td data-label="Monto (Bs. / USD)">
                         <div class="amount-neg">- ${formatoBs(gasto.monto)}</div>
                         <div style="font-size: 0.8rem; color: var(--text-muted);">${eqUsd}</div>
                     </td>
@@ -1134,26 +1507,50 @@
             });
         }
 
-        // Registrar fila en la tabla de historial
-        function agregarMovimiento(descripcion, monto) {
-            const tabla = document.getElementById('tabla-movimientos');
-            const fila = tabla.insertRow(0);
-            
+        // =========================================
+        // HISTORIAL Y CALCULADORA
+        // =========================================
+        function registrarMovimiento(descripcion, monto) {
             const hoy = new Date().toLocaleDateString('es-VE');
             const ref = '#' + Math.floor(1000000 + Math.random() * 9000000);
-            const esPositivo = monto >= 0;
-
-            fila.innerHTML = `
-                <td data-label="Fecha">${hoy}</td>
-                <td data-label="Descripción">${descripcion}</td>
-                <td data-label="Referencia">${ref}</td>
-                <td data-label="Monto (Bs.)" class="${esPositivo ? 'amount-pos' : 'amount-neg'}">
-                    ${esPositivo ? '+ ' : '- '}${formatoBs(Math.abs(monto))}
-                </td>
-            `;
+            usuarioActual.movimientos.unshift({
+                fecha: hoy,
+                descripcion,
+                referencia: ref,
+                monto
+            });
+            renderizarMovimientos();
         }
 
-        // Calculadora en tiempo real
+        function renderizarMovimientos() {
+            const tabla = document.getElementById('tabla-movimientos');
+            tabla.innerHTML = '';
+
+            if (!usuarioActual || usuarioActual.movimientos.length === 0) {
+                tabla.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-muted);">
+                            No hay movimientos registrados en esta cuenta.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            usuarioActual.movimientos.forEach(mov => {
+                const fila = tabla.insertRow();
+                const esPositivo = mov.monto >= 0;
+                fila.innerHTML = `
+                    <td data-label="Fecha">${mov.fecha}</td>
+                    <td data-label="Descripción">${mov.descripcion}</td>
+                    <td data-label="Referencia">${mov.referencia}</td>
+                    <td data-label="Monto (Bs.)" class="${esPositivo ? 'amount-pos' : 'amount-neg'}">
+                        ${esPositivo ? '+ ' : '- '}${formatoBs(Math.abs(mov.monto))}
+                    </td>
+                `;
+            });
+        }
+
         function convertirMoneda(origen) {
             const inputUsd = document.getElementById('calc-usd');
             const inputVes = document.getElementById('calc-ves');
@@ -1167,8 +1564,8 @@
             }
         }
 
-        // Inicializar valores al cargar
-        actualizarVista();
+        // Arrancar aplicación
+        inicializarAlmacenamiento();
     </script>
 </body>
 </html>
